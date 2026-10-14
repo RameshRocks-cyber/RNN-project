@@ -1,0 +1,15 @@
+{
+    "max_sequence_length": 200,
+    "max_vocab_size": 10000,
+    "oov_token": "<OOV>",
+    "padding_type": "post",
+    "truncating_type": "post",
+    "cleaning": {
+        "strip_html": true,
+        "strip_urls": true,
+        "lowercase": true,
+        "isolate_punctuation": true,
+        "preserve_apostrophes": true,
+        "collapse_whitespace": true
+    }
+}

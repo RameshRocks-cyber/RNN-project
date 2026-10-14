@@ -1,0 +1,12 @@
+{
+    "id2label": {
+        "0": "Negative",
+        "1": "Positive"
+    },
+    "label2id": {
+        "Negative": 0,
+        "Positive": 1
+    },
+    "decision_threshold": 0.5,
+    "description": "Sigmoid output >= 0.5 is mapped to Positive (1), < 0.5 is mapped to Negative (0)."
+}

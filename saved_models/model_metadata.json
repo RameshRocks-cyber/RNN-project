@@ -1,0 +1,27 @@
+{
+    "model_name": "GRU Sentiment Classifier",
+    "architecture_type": "Gated Recurrent Unit (GRU)",
+    "framework": "TensorFlow / Keras 3",
+    "serialization_format": "Native Keras v3 (.keras zip archive)",
+    "training_dataset": "IMDB 50,000 Movie Reviews (Raw Text)",
+    "dataset_split": {
+        "train": 39665,
+        "validation": 4958,
+        "test": 4959
+    },
+    "performance_metrics": {
+        "test_accuracy": 0.8826,
+        "test_precision_positive": 0.8919,
+        "test_recall_positive": 0.8718,
+        "test_f1_positive": 0.8818,
+        "test_macro_f1": 0.8826,
+        "roc_auc": 0.9524,
+        "validation_loss": 0.2761,
+        "validation_accuracy": 0.8836
+    },
+    "computational_profile": {
+        "total_parameters": 667073,
+        "recurrent_parameters": 24960,
+        "training_time_seconds": 119.61
+    }
+}
