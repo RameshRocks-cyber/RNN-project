@@ -1,6 +1,6 @@
 """
 Inference module for real-time sentiment prediction on arbitrary review text.
-Supports both SimpleRNN and LSTM models.
+Supports SimpleRNN, LSTM, and GRU models.
 """
 
 import sys
@@ -13,32 +13,44 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from tensorflow.keras.models import load_model
 
-from src.config import LSTM_MODEL_PATH, MODEL_PATH, TOKENIZER_PATH
+from src.config import (
+    GRU_MODEL_PATH,
+    LSTM_MODEL_PATH,
+    MODEL_PATH,
+    TOKENIZER_PATH,
+)
 from src.preprocessor import load_tokenizer, transform_texts
 
 
 class SentimentPredictor:
     """Encapsulates model and tokenizer inference for real-time predictions."""
 
-    def __init__(self, model_type: str = "lstm"):
+    def __init__(self, model_type: str = "gru"):
         self.model_type = model_type.lower()
         self.model = None
         self.tokenizer = None
 
+    def get_model_path(self) -> Path:
+        if self.model_type == "gru":
+            return GRU_MODEL_PATH
+        elif self.model_type == "lstm":
+            return LSTM_MODEL_PATH
+        else:
+            return MODEL_PATH
+
     def load_artifacts(self) -> None:
         """Loads trained Keras model and fitted tokenizer."""
-        target_model_path = LSTM_MODEL_PATH if self.model_type == "lstm" else MODEL_PATH
+        target_model_path = self.get_model_path()
         if not target_model_path.exists():
-            # Fallback if preferred model isn't trained yet
-            if self.model_type == "lstm" and MODEL_PATH.exists():
-                print(f"[Notice] LSTM model not found, falling back to SimpleRNN at {MODEL_PATH}")
-                target_model_path = MODEL_PATH
-            elif self.model_type == "simple_rnn" and LSTM_MODEL_PATH.exists():
-                print(f"[Notice] SimpleRNN model not found, falling back to LSTM at {LSTM_MODEL_PATH}")
-                target_model_path = LSTM_MODEL_PATH
+            # Fallback to any trained model available
+            for candidate in [GRU_MODEL_PATH, LSTM_MODEL_PATH, MODEL_PATH]:
+                if candidate.exists():
+                    print(f"[Notice] {self.model_type.upper()} not found, falling back to: {candidate.name}")
+                    target_model_path = candidate
+                    break
             else:
                 raise FileNotFoundError(
-                    f"Model not found at {target_model_path}. Please train the model first."
+                    f"No trained model found. Please train a model first."
                 )
 
         if not TOKENIZER_PATH.exists():
@@ -75,7 +87,7 @@ class SentimentPredictor:
         }
 
 
-def predict_sentiment(text: str, model_type: str = "lstm") -> Dict[str, Union[str, float]]:
+def predict_sentiment(text: str, model_type: str = "gru") -> Dict[str, Union[str, float]]:
     """Convenience helper function for single-call prediction."""
     predictor = SentimentPredictor(model_type=model_type)
     return predictor.predict(text)

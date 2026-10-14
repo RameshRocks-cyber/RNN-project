@@ -50,3 +50,10 @@ LSTM_METRICS_PATH = SAVED_MODELS_DIR / "lstm_training_history.json"
 LSTM_PLOT_PATH = SAVED_MODELS_DIR / "lstm_learning_curves.png"
 LSTM_CONFUSION_MATRIX_PATH = SAVED_MODELS_DIR / "lstm_confusion_matrix.png"
 
+# Saved Artifact Names (GRU)
+GRU_MODEL_PATH = SAVED_MODELS_DIR / "gru_sentiment_model.keras"
+GRU_METRICS_PATH = SAVED_MODELS_DIR / "gru_training_history.json"
+GRU_PLOT_PATH = SAVED_MODELS_DIR / "gru_learning_curves.png"
+GRU_CONFUSION_MATRIX_PATH = SAVED_MODELS_DIR / "gru_confusion_matrix.png"
+
+

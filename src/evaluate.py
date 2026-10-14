@@ -2,7 +2,7 @@
 Evaluation module for model performance on unseen test data.
 Computes classification metrics (Accuracy, Precision, Recall, F1, ROC-AUC),
 generates Confusion Matrix heatmap visualization, and runs sanity checks on manual reviews.
-Supports both SimpleRNN and LSTM models for fair benchmarking.
+Supports SimpleRNN, LSTM, and GRU models for fair benchmarking.
 """
 
 import argparse
@@ -23,6 +23,8 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 from tensorflow.keras.models import load_model
 
 from src.config import (
+    GRU_CONFUSION_MATRIX_PATH,
+    GRU_MODEL_PATH,
     LSTM_CONFUSION_MATRIX_PATH,
     LSTM_MODEL_PATH,
     MAX_SEQUENCE_LENGTH,
@@ -61,15 +63,24 @@ def plot_confusion_matrix(cm: np.ndarray, save_path: Path, model_name: str = "Mo
 def evaluate_test_set(
     X_test_raw: List[str],
     y_test: np.ndarray,
-    model_type: str = "lstm",
+    model_type: str = "gru",
 ) -> Dict[str, Any]:
     """
-    Evaluates the trained model (SimpleRNN or LSTM) on held-out test data.
+    Evaluates the trained model (SimpleRNN, LSTM, or GRU) on held-out test data.
     """
-    is_lstm = (model_type.lower() == "lstm")
-    model_name = "LSTM" if is_lstm else "SimpleRNN"
-    target_model_path = LSTM_MODEL_PATH if is_lstm else MODEL_PATH
-    target_cm_path = LSTM_CONFUSION_MATRIX_PATH if is_lstm else CONFUSION_MATRIX_PATH
+    model_type = model_type.lower()
+    if model_type == "gru":
+        model_name = "GRU"
+        target_model_path = GRU_MODEL_PATH
+        target_cm_path = GRU_CONFUSION_MATRIX_PATH
+    elif model_type == "lstm":
+        model_name = "LSTM"
+        target_model_path = LSTM_MODEL_PATH
+        target_cm_path = LSTM_CONFUSION_MATRIX_PATH
+    else:
+        model_name = "SimpleRNN"
+        target_model_path = MODEL_PATH
+        target_cm_path = CONFUSION_MATRIX_PATH
 
     if not target_model_path.exists():
         raise FileNotFoundError(f"Trained model not found at {target_model_path}. Train model first.")
@@ -126,13 +137,13 @@ def evaluate_test_set(
     }
 
 
-def test_manual_reviews(model_type: str = "lstm") -> List[Dict[str, Any]]:
+def test_manual_reviews(model_type: str = "gru") -> List[Dict[str, Any]]:
     """
     Evaluates model inference on 10 hand-crafted test reviews with varying sentiment,
     length, negation, and nuance.
     """
-    is_lstm = (model_type.lower() == "lstm")
-    model_name = "LSTM" if is_lstm else "SimpleRNN"
+    model_type = model_type.lower()
+    model_name = model_type.upper()
 
     manual_cases = [
         # 1. Unambiguously Positive
@@ -197,7 +208,7 @@ def test_manual_reviews(model_type: str = "lstm") -> List[Dict[str, Any]]:
     return results
 
 
-def run_full_evaluation(model_type: str = "lstm"):
+def run_full_evaluation(model_type: str = "gru"):
     print("[1/3] Loading dataset for test evaluation...")
     df_raw = load_raw_data()
     df_clean = preprocess_dataset(df_raw)
@@ -213,7 +224,7 @@ def run_full_evaluation(model_type: str = "lstm"):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate SimpleRNN or LSTM Sentiment Model")
-    parser.add_argument("--model-type", type=str, default="lstm", choices=["lstm", "simple_rnn"])
+    parser = argparse.ArgumentParser(description="Evaluate SimpleRNN, LSTM, or GRU Sentiment Model")
+    parser.add_argument("--model-type", type=str, default="gru", choices=["gru", "lstm", "simple_rnn"])
     args = parser.parse_args()
     run_full_evaluation(model_type=args.model_type)

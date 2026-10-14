@@ -1,5 +1,5 @@
 """
-Training pipeline for Recurrent Sentiment Classifiers (SimpleRNN & LSTM).
+Training pipeline for Recurrent Sentiment Classifiers (SimpleRNN, LSTM, and GRU).
 Handles data preparation, model compilation, training with callbacks,
 history persistence, learning curve plotting, and runtime benchmark tracking.
 """
@@ -25,6 +25,9 @@ from src.config import (
     BATCH_SIZE,
     EARLY_STOPPING_PATIENCE,
     EPOCHS,
+    GRU_METRICS_PATH,
+    GRU_MODEL_PATH,
+    GRU_PLOT_PATH,
     LSTM_METRICS_PATH,
     LSTM_MODEL_PATH,
     LSTM_PLOT_PATH,
@@ -36,7 +39,7 @@ from src.config import (
     TOKENIZER_PATH,
 )
 from src.data_loader import load_raw_data, preprocess_dataset, split_data
-from src.model import build_lstm_model, build_rnn_model
+from src.model import build_gru_model, build_lstm_model, build_rnn_model
 from src.preprocessor import fit_tokenizer, save_tokenizer, transform_texts
 
 PLOT_PATH = SAVED_MODELS_DIR / "learning_curves.png"
@@ -75,16 +78,26 @@ def plot_training_curves(history_dict: dict, save_path: Path, model_name: str = 
     print(f"[Visualization] Learning curves saved to: {save_path}")
 
 
-def train_pipeline(model_type: str = "lstm") -> dict:
+def train_pipeline(model_type: str = "gru") -> dict:
     """
-    Executes the full end-to-end model training workflow for SimpleRNN or LSTM.
+    Executes the full end-to-end model training workflow for SimpleRNN, LSTM, or GRU.
     """
     model_type = model_type.lower()
-    is_lstm = (model_type == "lstm")
-    model_name = "LSTM" if is_lstm else "SimpleRNN"
-    target_model_path = LSTM_MODEL_PATH if is_lstm else MODEL_PATH
-    target_metrics_path = LSTM_METRICS_PATH if is_lstm else METRICS_PATH
-    target_plot_path = LSTM_PLOT_PATH if is_lstm else PLOT_PATH
+    if model_type == "gru":
+        model_name = "GRU"
+        target_model_path = GRU_MODEL_PATH
+        target_metrics_path = GRU_METRICS_PATH
+        target_plot_path = GRU_PLOT_PATH
+    elif model_type == "lstm":
+        model_name = "LSTM"
+        target_model_path = LSTM_MODEL_PATH
+        target_metrics_path = LSTM_METRICS_PATH
+        target_plot_path = LSTM_PLOT_PATH
+    else:
+        model_name = "SimpleRNN"
+        target_model_path = MODEL_PATH
+        target_metrics_path = METRICS_PATH
+        target_plot_path = PLOT_PATH
 
     print("=" * 65)
     print(f"      {model_name} Sentiment Classifier - Training Pipeline")
@@ -119,7 +132,12 @@ def train_pipeline(model_type: str = "lstm") -> dict:
     y_val_arr = np.array(y_val, dtype=np.float32)
 
     print(f"\n[Step 6/6] Instantiating and Compiling {model_name} Model...")
-    model = build_lstm_model() if is_lstm else build_rnn_model()
+    if model_type == "gru":
+        model = build_gru_model()
+    elif model_type == "lstm":
+        model = build_lstm_model()
+    else:
+        model = build_rnn_model()
     model.summary()
 
     callbacks = [
@@ -178,7 +196,7 @@ def train_pipeline(model_type: str = "lstm") -> dict:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train RNN or LSTM Sentiment Analysis Model")
-    parser.add_argument("--model-type", type=str, default="lstm", choices=["lstm", "simple_rnn"])
+    parser = argparse.ArgumentParser(description="Train SimpleRNN, LSTM, or GRU Sentiment Model")
+    parser.add_argument("--model-type", type=str, default="gru", choices=["gru", "lstm", "simple_rnn"])
     args = parser.parse_args()
     train_pipeline(model_type=args.model_type)
