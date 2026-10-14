@@ -4,8 +4,14 @@ Computes classification metrics (Accuracy, Precision, Recall, F1, ROC-AUC)
 and generates diagnostic visualizations (Confusion Matrix, Loss/Accuracy Curves).
 """
 
+import sys
 from pathlib import Path
 from typing import Dict, Any
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns

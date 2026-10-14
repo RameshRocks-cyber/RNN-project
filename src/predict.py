@@ -2,7 +2,14 @@
 Inference module for real-time sentiment prediction on arbitrary review text.
 """
 
+import sys
+from pathlib import Path
 from typing import Dict, Union
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from tensorflow.keras.models import load_model
 
 from src.config import MODEL_PATH, TOKENIZER_PATH
