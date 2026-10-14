@@ -39,7 +39,14 @@ EPOCHS = 10
 LEARNING_RATE = 0.001
 EARLY_STOPPING_PATIENCE = 3
 
-# Saved Artifact Names
+# Saved Artifact Names (SimpleRNN)
 MODEL_PATH = SAVED_MODELS_DIR / "simple_rnn_sentiment_model.keras"
 TOKENIZER_PATH = SAVED_MODELS_DIR / "tokenizer.pkl"
 METRICS_PATH = SAVED_MODELS_DIR / "training_history.json"
+
+# Saved Artifact Names (LSTM)
+LSTM_MODEL_PATH = SAVED_MODELS_DIR / "lstm_sentiment_model.keras"
+LSTM_METRICS_PATH = SAVED_MODELS_DIR / "lstm_training_history.json"
+LSTM_PLOT_PATH = SAVED_MODELS_DIR / "lstm_learning_curves.png"
+LSTM_CONFUSION_MATRIX_PATH = SAVED_MODELS_DIR / "lstm_confusion_matrix.png"
+
