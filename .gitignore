@@ -1,39 +1,56 @@
-# Python bytecode & cache
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
 # Virtual Environments
 venv/
 .venv/
 env/
 ENV/
+env.bak/
+venv.bak/
 
-# Jupyter Notebook checkpoints
+# Jupyter Notebook Checkpoints
 .ipynb_checkpoints/
 
-# Datasets (large files ignored in git)
+# Datasets (Large binary CSVs/TSVs ignored)
 data/raw/*.csv
 data/raw/*.tsv
+data/raw/*.zip
+data/raw/*.tar.gz
 data/processed/*.npz
 data/processed/*.pkl
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 
-# Model weights & large binaries (keep the folder structure)
+# Model weights & large serialized artifacts
 saved_models/*.h5
 saved_models/*.keras
 saved_models/*.pkl
 !saved_models/.gitkeep
 
-# IDE & OS specifics
+# IDEs & Operating Systems
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 .vscode/
 .idea/
 *.swp
+*.swo
 
-# Environment variables
+# Secrets & Environment variables
 .env
+.env.*
+*.pem
+*.key
+credentials.json
