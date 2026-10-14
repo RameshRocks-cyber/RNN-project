@@ -4,7 +4,7 @@ Constructs and compiles the TensorFlow/Keras sequential sentiment classifier.
 """
 
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, SimpleRNN, Dense, Dropout
+from tensorflow.keras.layers import Input, Embedding, SimpleRNN, Dense, Dropout
 from tensorflow.keras.optimizers import Adam
 
 from src.config import (
@@ -26,38 +26,51 @@ def build_rnn_model(
     rnn_units: int = RNN_UNITS,
     dense_units: int = DENSE_UNITS,
     dropout_rate: int = DROPOUT_RATE,
+    learning_rate: float = LEARNING_RATE,
 ) -> Sequential:
     """
-    Builds a SimpleRNN-based sequence classification model.
+    Builds and compiles the baseline SimpleRNN sentiment classification model.
 
-    Layer Breakdown:
-    1. Embedding Layer: Maps discrete token indices (0..V) to dense continuous vectors of dim `embedding_dim`.
-    2. SimpleRNN Layer: Processes sequence step-by-step; maintains a recurrent hidden state across time steps.
-    3. Dropout Layer: Mitigates co-adaptation and overfitting on vocabulary cues.
-    4. Dense Layer: Non-linear feature aggregation with ReLU activation.
-    5. Output Layer: Single neuron with Sigmoid activation outputting probability p in [0, 1].
+    Architecture Flow:
+    1. Input Layer: Accepts fixed-length 1D sequences of token integers of shape (200,).
+    2. Embedding Layer: Projects token IDs (0..9999) into continuous 64-dimensional vectors.
+       Output Shape: (batch_size, 200, 64).
+    3. SimpleRNN Layer: Processes sequence chronologically, updating its recurrent hidden state
+       at each time step t. With return_sequences=False, it emits only the final hidden state h_T.
+       Output Shape: (batch_size, 64).
+    4. Dropout Layer: Regularization dropping neurons with probability `dropout_rate` during training.
+    5. Intermediate Dense Layer: Non-linear feature aggregation with ReLU activation.
+       Output Shape: (batch_size, 32).
+    6. Output Dense Layer: Single neuron with Sigmoid activation outputting probability p in [0, 1].
+       Output Shape: (batch_size, 1).
     """
-    model = Sequential(
+    layers = [
+        Input(shape=(max_len,), name="input_sequence"),
+        Embedding(
+            input_dim=vocab_size,
+            output_dim=embedding_dim,
+            name="embedding_layer",
+        ),
+        SimpleRNN(
+            units=rnn_units,
+            return_sequences=False,  # Emits only final hidden vector h_T
+            name="simple_rnn_layer",
+        ),
+    ]
+
+    if dropout_rate > 0.0:
+        layers.append(Dropout(rate=dropout_rate, name="dropout_layer"))
+
+    layers.extend(
         [
-            Embedding(
-                input_dim=vocab_size,
-                output_dim=embedding_dim,
-                input_length=max_len,
-                name="embedding_layer",
-            ),
-            SimpleRNN(
-                units=rnn_units,
-                return_sequences=False,  # Return only the final hidden state vector
-                name="simple_rnn_layer",
-            ),
-            Dropout(rate=dropout_rate, name="dropout_layer"),
             Dense(units=dense_units, activation="relu", name="dense_intermediate"),
             Dense(units=OUTPUT_UNITS, activation="sigmoid", name="sentiment_output"),
-        ],
-        name="SimpleRNN_Sentiment_Classifier",
+        ]
     )
 
-    optimizer = Adam(learning_rate=LEARNING_RATE)
+    model = Sequential(layers, name="SimpleRNN_Sentiment_Classifier")
+
+    optimizer = Adam(learning_rate=learning_rate)
     model.compile(
         optimizer=optimizer,
         loss="binary_crossentropy",
@@ -65,3 +78,9 @@ def build_rnn_model(
     )
 
     return model
+
+
+if __name__ == "__main__":
+    # Print architectural summary and parameter specifications
+    model = build_rnn_model()
+    model.summary()
