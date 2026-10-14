@@ -61,7 +61,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("🎬 Sentiment Analysis: SimpleRNN vs LSTM")
+st.title("🎬 Sentiment Analysis: SimpleRNN vs LSTM vs GRU")
 st.caption("Natural Language Processing Benchmark with TensorFlow/Keras & IMDB Reviews")
 
 # Sidebar - Architecture Selection & Benchmarks
@@ -69,22 +69,28 @@ with st.sidebar:
     st.header("⚙️ Model Selector")
     model_choice = st.radio(
         "Select Architecture to Run Inference:",
-        ["LSTM (Recommended)", "SimpleRNN (Baseline)"],
+        ["GRU (Recommended)", "LSTM", "SimpleRNN (Baseline)"],
         index=0,
-        help="Compare how LSTM solves SimpleRNN's vanishing gradient problem.",
+        help="Compare how GRU and LSTM solve SimpleRNN's vanishing gradient problem.",
     )
-    selected_type = "lstm" if "LSTM" in model_choice else "simple_rnn"
+    if "GRU" in model_choice:
+        selected_type = "gru"
+    elif "LSTM" in model_choice:
+        selected_type = "lstm"
+    else:
+        selected_type = "simple_rnn"
 
     st.divider()
     st.header("📊 Benchmark Comparison")
     st.markdown(
         """
-        | Metric | SimpleRNN | LSTM |
-        | :--- | :---: | :---: |
-        | **Test Accuracy** | `49.97%` | **`87.58%`** |
-        | **ROC-AUC** | `0.4918` | **`0.9431`** |
-        | **F1-Score** | `0.4176` | **`0.8758`** |
-        | **Parameters** | 650,369 | 675,137 |
+        | Metric | SimpleRNN | LSTM | GRU |
+        | :--- | :---: | :---: | :---: |
+        | **Test Accuracy** | `49.97%` | `87.58%` | **`88.26%`** |
+        | **Test F1** | `0.4176` | `0.8758` | **`0.8826`** |
+        | **ROC-AUC** | `0.4918` | `0.9431` | **`0.9524`** |
+        | **Train Time** | 113.9s | 136.9s | **119.6s** |
+        | **Total Params** | 650,369 | 675,137 | **667,073** |
         """
     )
     st.divider()
@@ -144,3 +150,12 @@ if analyze_btn:
             st.write(f"- **Raw Sigmoid Output:** `{raw_score:.4f}`")
             st.write(f"- **Decision Threshold:** `>= 0.5` -> Positive | `< 0.5` -> Negative")
             st.write(f"- **Confidence:** `{confidence*100:.2f}%`")
+
+st.divider()
+with st.expander("📈 View SimpleRNN vs LSTM vs GRU Benchmark Charts"):
+    chart_path = PROJECT_ROOT / "saved_models" / "model_comparison_charts.png"
+    if chart_path.exists():
+        st.image(str(chart_path), caption="Empirical 3-Way Architecture Benchmark")
+    else:
+        st.info("Run `python src/benchmark_charts.py` to generate the comparison charts.")
+
