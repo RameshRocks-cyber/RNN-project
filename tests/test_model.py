@@ -10,7 +10,7 @@ from src.config import (
     MAX_VOCAB_SIZE,
     RNN_UNITS,
 )
-from src.model import build_lstm_model, build_rnn_model
+from src.model import build_gru_model, build_lstm_model, build_rnn_model
 
 
 def test_build_rnn_model_structure():
@@ -64,3 +64,23 @@ def test_lstm_forward_pass_predictions():
     assert output.shape == (batch_size, 1)
     assert np.all(output >= 0.0)
     assert np.all(output <= 1.0)
+
+
+def test_build_gru_model_structure():
+    model = build_gru_model(
+        vocab_size=MAX_VOCAB_SIZE,
+        embedding_dim=EMBEDDING_DIM,
+        max_len=MAX_SEQUENCE_LENGTH,
+        gru_units=RNN_UNITS,
+        dense_units=DENSE_UNITS,
+    )
+    assert model is not None
+    assert model.input_shape == (None, MAX_SEQUENCE_LENGTH)
+    assert model.output_shape == (None, 1)
+
+    layer_names = [l.name for l in model.layers]
+    assert any("embedding" in name for name in layer_names)
+    assert any("gru" in name for name in layer_names)
+    assert any("sentiment_output" in name for name in layer_names)
+
+
